@@ -1,7 +1,8 @@
-#mapbox-panel {
+/*#mapbox-panel {
   left: 50%;
   position: fixed;
-}
+}*/
+
 #mapbox-panel .chart-title {
   border: medium none;
 }
