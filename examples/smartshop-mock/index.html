@@ -2,8 +2,8 @@
 <html>
 <head>
   <title>Smartshop Dashboard</title>
-  <link rel="stylesheet" href="../../assets/lib/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../../assets/css/keen-dashboards.css">
+  <link rel="stylesheet" href="assets/lib/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/css/keen-dashboards.css">
 </head>
 <body class="application">
 
@@ -19,7 +19,7 @@
         <!-- <a class="navbar-brand" href="../">
           <span class="glyphicon glyphicon-chevron-left"></span>
         </a> -->
-        <a class="navbar-brand" href="./">Smartshop Dashboard <small>Demo</small></a>
+        <a class="navbar-brand" href="./">Smartshop Dashboard <small>General Manager Demo</small></a>
       </div>
       <!--<div class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-left">
@@ -77,7 +77,7 @@
 	         <div class="col-sm-6">
 	            <div class="chart-wrapper">
 	              <div class="chart-title">
-	                Ofertas mostradas por operador
+	                Ofertas descubiertas por operador
 	              </div>
 	              <div class="chart-stage">
 	                <div id="offersShownByBrandChart"></div>
@@ -87,7 +87,7 @@
 	         <div class="col-sm-6">
 	            <div class="chart-wrapper">
 	              <div class="chart-title">
-	                Ofertas mostradas por categor&iacute;a
+	                Ofertas descubiertas por categor&iacute;a
 	              </div>
 	              <div class="chart-stage">
 	                <div id="offersShownByCategoryChart"></div>
@@ -95,76 +95,41 @@
 	            </div>
 	         </div>
          </div>
-         <p class="small text-muted">Built with &#9829; by <a href="https://www.smartshops.com">Smartshop Team</a></p>
-         
-          <!-- <div class="col-sm-12">
-            <div class="chart-wrapper">
-              <div class="chart-title">
-                Hourly actions
-                <small class="pull-right">
-                  <label class="pull-left" style="margin-right: 10px;">
-                    Street:
-                    <select>
-                      <option>All blocks</option>
-                      <option>Howard</option>
-                      <option selected>Folsom</option>
-                      <option>Harrison</option>
-                    </select>
-                  </label>
-                  <label>
-                    Block:
-                    <select>
-                      <option>All blocks</option>
-                      <option>900</option>
-                      <option selected>800</option>
-                      <option>700</option>
-                      <option>500</option>
-                    </select>
-                  </label>
-                </small>
-              </div>
-              <div class="chart-stage">
-                <div id="chart-03"></div>
-              </div>
-              <div class="chart-notes">
-                Notes go down here
-              </div>
-            </div>
-          </div> -->
-          <!-- <div class="col-sm-12">
-            <div class="chart-wrapper">
-              <div class="chart-title">
-                Actions by officer
-                <small class="pull-right">
-                  <label class="pull-left" style="margin-right: 10px;">
-                    Officer:
-                    <select>
-                      <option selected>All officers</option>
-                      <option>Kathy Kuzemka</option>
-                      <option>William Howland</option>
-                      <option>Harrison Ford</option>
-                    </select>
-                  </label>
-                  <label>
-                    Type:
-                    <select>
-                      <option>All actions</option>
-                      <option selected>Expired meter</option>
-                      <option>Time limit</option>
-                      <option>No parking zone</option>
-                      <option>Loading zone</option>
-                    </select>
-                  </label>
-                </small>
-              </div>
-              <div class="chart-stage">
-                <div id="chart-05"></div>
-              </div>
-              <div class="chart-notes">
-                Notes go down here
-              </div>
-            </div>-->      
-
+         <div class="row">
+	         <div class="col-sm-6">
+	            <div class="chart-wrapper">
+	              <div class="chart-title">
+	                Ofertas favoritas por operador
+	              </div>
+	              <div class="chart-stage">
+	                <div id="offersFavouritesByBrandChart"></div>
+	              </div>              
+	            </div>
+	         </div>
+	         <div class="col-sm-6">
+	            <div class="chart-wrapper">
+	              <div class="chart-title">
+	                Operadores que han respondido a b&uacute;squedas de usuario 
+	              </div>
+	              <div class="chart-stage">
+	                <div id="searchesByBrandChart"></div>
+	              </div>              
+	            </div>
+	         </div>
+         </div>
+         <div class="row">
+	         <div class="col-sm-12">
+	            <div class="chart-wrapper">
+	              <div class="chart-title">
+	                B&uacute;squedas realizadas
+	              </div>
+	              <div class="chart-stage">
+	                <div id="searchesByQuery"></div>
+	              </div>              
+	            </div>
+	         </div>	         
+         </div>
+         <p class="small text-muted">Built with &#9829; by <a href="https://www.smartshops.com">Smartshop Team</a></p>        
   </div>
 
   <!-- Mapbox rocks -->
@@ -173,12 +138,15 @@
   <link href="https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.css" rel="stylesheet" />
 
   <!-- UI Resources -->
-  <script src="../../assets/lib/jquery/dist/jquery.min.js"></script>
-  <script src="../../assets/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="assets/lib/jquery/dist/jquery.min.js"></script>
+  <script src="assets/lib/bootstrap/dist/js/bootstrap.min.js"></script>
 
   <!-- Keen IOness -->
-  <script src="../../assets/lib/keen-js/dist/keen.min.js"></script>
-  <script src="../../assets/js/meta.js"></script>
+  <script src="assets/lib/keen-js/dist/keen.min.js"></script>
+  <script src="assets/js/meta.js"></script>
+  
+  <!-- D3 library -->
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
   <script src="keen.dashboard.js"></script>
   <link href="keen.mapbox.css" rel="stylesheet" />

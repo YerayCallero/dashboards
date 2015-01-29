@@ -1,14 +1,11 @@
-/*#mapbox-panel {
-  left: 50%;
-  position: fixed;
-}*/
-
 #mapbox-panel .chart-title {
   border: medium none;
 }
+
 #mapbox-panel .chart-stage {
   height: 600px;
 }
+
 #map {
   bottom: 0;
   height: 100%;
@@ -17,4 +14,13 @@
   right: 0px;
   top: 0px;
   width: 100%;
+}
+
+#offersShownByBrandChart, #offersShownByCategoryChart, #offersFavouritesByBrandChart, #searchesByBrandChart, #searchesByQuery  {
+	height: 450px;
+}
+
+.bubble {
+	display: block;
+	margin: auto;
 }

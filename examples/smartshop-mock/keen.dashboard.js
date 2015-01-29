@@ -14,8 +14,153 @@ Keen.ready(function(){
    showClientAgeChart();
    showOfferShownByBrandChart();
    showOfferShownByCategoryChart();
+   showOfferFavouritesByBrandChart();
+   showSearchesByBrandChart();
+   showSearchesByQueryChart();
    showActivityMap();
 });
+
+//------------- Searches by query chart --------
+function showSearchesByQueryChart() {
+ 	var keenFilter = [];
+	keenFilter.push({
+		property_name: "type",
+		operator: "eq",
+		property_value: "SEARCHRESPONSE"
+	});
+	
+	var offers_count = new Keen.Query("count", {
+		eventCollection: "smartshop_events",
+		groupBy: "search.query",
+		filters: keenFilter
+	});
+	
+	var resultJson = [];
+	var obj;
+	var URL = 'https://api.keen.io/3.0/projects/5465e8423831440585aae8b9/queries/count?api_key=92091663f85279d2535672a51c1a6c3cfdfdf509940c0c8acb3514ab6a43c1389de2cee1c21d8713c10a8b96d81f033d8492b70e1166b0e909ee2876598cdf7cce8779cd374b0a6c755f3e83c7e9de293be834441692d3f577339cea3ae3b3b941e0b851db04cd5bcea1f4992ddc581b&event_collection=smartshop_events&filters=%5B%7B%22property_name%22%3A%22type%22%2C%22operator%22%3A%22eq%22%2C%22property_value%22%3A%22SEARCHRESPONSE%22%7D%5D&timezone=3600&group_by=search.query;'
+		
+	var diameter = 450,
+	format = d3.format(",d"),
+    color = d3.scale.category20c();
+    
+    var bubble = d3.layout.pack()
+    .sort(null)
+    .size([diameter, diameter])
+    .padding(1.5);
+    
+    var svg = d3.select("#searchesByQuery").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+    .attr("class", "bubble");
+	    
+   d3.json(URL, function(error, root) {
+	  var node = svg.selectAll(".node")
+	      .data(bubble.nodes(classes(root.result))
+	      .filter(function(d) { return d.className; }))
+	    .enter().append("g")
+	     .attr("class", "node")
+	      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; }); 
+
+	  node.append("title")
+	      .text(function(d) { return d.className + ": " + format(d.value); });
+	
+	  node.append("circle")
+	      .attr("r", function(d) { return d.r; })
+	      .style("fill", function(d) { return color(d.className); });
+	
+	  node.append("text")
+	      .attr("dy", ".3em")
+	      .attr("font-size", "12px")
+	      .style("text-anchor", "middle")
+	      .text(function(d) {
+	      	if (!d.className) {
+	      		console.log('Problem with: ' + d);
+	      		return "";
+	      	} else {
+	      		return d.className.substring(0, d.r/3);
+	      	} 
+	      });  
+	});
+	
+	// Returns a flattened hierarchy containing all leaf nodes under the root.
+	function classes(root) {
+	  var classes = [],
+	  length = root.length;
+	  
+	  for (var i = 0; i < length; i++) {
+	  	var element = root[i];
+	  	console.log ('Node: ' + element['search.query'] + ' - ' + element['result']);
+	  	classes.push({
+	  		className: element['search.query'], 
+	  		value: element['result']
+	  	});	
+	  }
+	
+	  return {children: classes};
+	}
+
+	d3.select(self.frameElement).style("height", diameter + "px");  
+ }
+	
+	
+		
+
+//------------- Searches by brand chart --------
+function showSearchesByBrandChart() {
+ 	var keenFilter = [];
+	keenFilter.push({
+		property_name: "type",
+		operator: "eq",
+		property_value: "SEARCHRESPONSE"
+	});
+	
+	var offers_count = new Keen.Query("count", {
+		eventCollection: "smartshop_events",
+		groupBy: "brand.name",
+		filters: keenFilter
+	});
+	
+	client.draw(offers_count, document.getElementById("searchesByBrandChart"), {
+		chartType: "barchart",
+		titlePosition: 'none',
+		height: "auto",
+		width: "auto",
+		colors: null,
+		chartOptions: {
+			is3D: true,	
+			legend: 'none'		
+		}
+	});	
+}
+
+//------------- Offer favourites by brand chart --------
+function showOfferFavouritesByBrandChart() {
+ 	var keenFilter = [];
+	keenFilter.push({
+		property_name: "type",
+		operator: "eq",
+		property_value: "OFFERFAVOURITE"
+	});
+	
+	var offers_count = new Keen.Query("count", {
+		eventCollection: "smartshop_events",
+		groupBy: "offer.brand.name",
+		filters: keenFilter
+	});
+	
+	client.draw(offers_count, document.getElementById("offersFavouritesByBrandChart"), {
+		chartType: "barchart",
+		titlePosition: 'none',
+		height: "auto",
+		width: "auto",
+		colors: null,
+		chartOptions: {
+			is3D: true,	
+			legend: 'none'		
+		}
+	});	
+}
+
 
 //------------- Offer shown by category chart --------
 function showOfferShownByCategoryChart() {
@@ -33,13 +178,14 @@ function showOfferShownByCategoryChart() {
 	});
 	
 	client.draw(offers_count, document.getElementById("offersShownByCategoryChart"), {
-		chartType: "piechart",
+		chartType: "barchart",
 		titlePosition: 'none',
 		height: "auto",
 		width: "auto",
 		colors: null,
 		chartOptions: {
-			is3D: true,			
+			is3D: true,	
+			legend: 'none'		
 		}
 	});	
 }
@@ -60,7 +206,7 @@ function showOfferShownByBrandChart() {
 	});
 	
 	client.draw(offers_count, document.getElementById("offersShownByBrandChart"), {
-		chartType: "piechart",
+		chartType: "barchart",
 		titlePosition: 'none',
 		height: "auto",
 		width: "auto",
