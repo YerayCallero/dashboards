@@ -100,10 +100,7 @@ function showSearchesByQueryChart() {
 	}
 
 	d3.select(self.frameElement).style("height", diameter + "px");  
- }
-	
-	
-		
+ }		
 
 //------------- Searches by brand chart --------
 function showSearchesByBrandChart() {
@@ -173,7 +170,7 @@ function showOfferShownByCategoryChart() {
 	
 	var offers_count = new Keen.Query("count", {
 		eventCollection: "smartshop_events",
-		groupBy: "offer.category",
+		groupBy: "offer.brand.category",
 		filters: keenFilter
 	});
 	
