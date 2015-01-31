@@ -73,8 +73,7 @@ function showSearchesByQueryChart() {
 	      .attr("font-size", "12px")
 	      .style("text-anchor", "middle")
 	      .text(function(d) {
-	      	if (!d.className) {
-	      		console.log('Problem with: ' + d);
+	      	if (!d.className) {	      		
 	      		return "";
 	      	} else {
 	      		return d.className.substring(0, d.r/3);
@@ -89,7 +88,6 @@ function showSearchesByQueryChart() {
 	  
 	  for (var i = 0; i < length; i++) {
 	  	var element = root[i];
-	  	console.log ('Node: ' + element['search.query'] + ' - ' + element['result']);
 	  	classes.push({
 	  		className: element['search.query'], 
 	  		value: element['result']
@@ -132,7 +130,45 @@ function showSearchesByBrandChart() {
 
 //------------- Offer favourites by brand chart --------
 function showOfferFavouritesByBrandChart() {
- 	var keenFilter = [];
+	var deferred1 = $.Deferred();
+ 	var deferred2 = $.Deferred();
+ 	var deferred3 = $.Deferred();
+ 	var data = [];
+ 	
+ 	getOfferShownByBrand(deferred1);
+	getOfferFavouritedByBrand(deferred2);
+	getOfferPublishedByBrand(deferred3);
+	
+	$.when(deferred1, deferred2, deferred3).done(function(offersShownByBrand, offersFavouritedByBrand, offersPublishedByBrand){
+		var length = offersPublishedByBrand.length;
+		for (var i = 0; i < length; i++) {
+			var entry = offersPublishedByBrand[i];
+			var name = entry['offer.brand.name'];
+			var offersShown = getOffersShownByName(name, offersShownByBrand);
+			var offersFavourited = getOffersShownByName(name, offersFavouritedByBrand);
+			data.push({
+				name: name,
+				impacto: offersShown == 0? 0 : offersFavourited / offersShown
+			});
+		}
+		var chart = new Keen.Dataviz()
+    				.el(document.getElementById('offersFavouritesByBrandChart'))
+    				.parseRawData({ result: data })
+    				.chartType("barchart")
+    				.colors(null)
+					.chartOptions( {
+						is3D: true,
+						legend: 'none',
+						hAxis: {
+							title: 'Impacto = ofertas favoritas / ofertas vistas'
+						}	
+					})
+    				.render();
+	});	
+}
+
+function getOfferFavouritedByBrand(deferred) {
+	var keenFilter = [];
 	keenFilter.push({
 		property_name: "type",
 		operator: "eq",
@@ -144,28 +180,73 @@ function showOfferFavouritesByBrandChart() {
 		groupBy: "offer.brand.name",
 		filters: keenFilter
 	});
-	
-	client.draw(offers_count, document.getElementById("offersFavouritesByBrandChart"), {
-		chartType: "barchart",
-		titlePosition: 'none',
-		height: "auto",
-		width: "auto",
-		colors: null,
-		chartOptions: {
-			is3D: true,	
-			legend: 'none'		
-		}
-	});	
+	client.run(offers_count, function(err, res){
+    	deferred.resolve(res.result);
+    });
+    return deferred.promise();
 }
 
 
 //------------- Offer shown by category chart --------
 function showOfferShownByCategoryChart() {
- 	var keenFilter = [];
+ 	var deferred1 = $.Deferred();
+ 	var deferred2 = $.Deferred();
+ 	var data = [];
+ 	
+ 	getOfferShownByCategory(deferred1);
+	getOfferPublishedByCategory(deferred2);
+	
+	$.when(deferred1, deferred2).done(function(offersShownByCategory, offersPublishedByCategory){
+		var length = offersPublishedByCategory.length;
+		for (var i = 0; i < length; i++) {
+			var entry = offersPublishedByCategory[i];
+			var name = entry['offer.brand.category'];
+			var offersPublished = entry['result'];
+			var offersShown = getOffersShownByCategoryName(name, offersShownByCategory);
+			data.push({
+				name: name,
+				impacto: offersShown / offersPublished
+			});
+		}
+		var chart = new Keen.Dataviz()
+    				.el(document.getElementById('offersShownByCategoryChart'))
+    				.parseRawData({ result: data })
+    				.chartType("barchart")
+    				.colors(null)
+					.chartOptions( {
+						is3D: true,
+						legend: 'none',
+						hAxis: {
+							title: 'Impacto = ofertas vistas / ofertas publicadas'
+						}	
+					})
+    				.render();
+	});
+}
+
+function getOffersShownByCategoryName(name, list) {
+	var length = list.length;
+	for (var i = 0; i < length; i++) {
+		var entry = list[i];
+		var entryName = entry['offer.brand.category'];
+		if (entryName == name) {
+			return entry['result'];
+		}
+	}
+	return 0;
+}
+
+function getOfferPublishedByCategory(deferred) {
+	var keenFilter = [];
 	keenFilter.push({
 		property_name: "type",
 		operator: "eq",
-		property_value: "OFFERSHOWN"
+		property_value: "OFFERPUBLISHED"
+	});
+	keenFilter.push({
+		property_name: "offer.brand.category",
+		operator: "exists",
+		property_value: true
 	});
 	
 	var offers_count = new Keen.Query("count", {
@@ -173,27 +254,96 @@ function showOfferShownByCategoryChart() {
 		groupBy: "offer.brand.category",
 		filters: keenFilter
 	});
-	
-	client.draw(offers_count, document.getElementById("offersShownByCategoryChart"), {
-		chartType: "barchart",
-		titlePosition: 'none',
-		height: "auto",
-		width: "auto",
-		colors: null,
-		chartOptions: {
-			is3D: true,	
-			legend: 'none'		
-		}
-	});	
+	client.run(offers_count, function(err, res){
+    	deferred.resolve(res.result);
+    });
+    return deferred.promise();
 }
 
-//------------- Offer shown by brand chart --------
-function showOfferShownByBrandChart() {
- 	var keenFilter = [];
+function getOfferShownByCategory(deferred) {
+	var keenFilter = [];
 	keenFilter.push({
 		property_name: "type",
 		operator: "eq",
 		property_value: "OFFERSHOWN"
+	});
+	keenFilter.push({
+		property_name: "offer.brand.category",
+		operator: "exists",
+		property_value: true
+	});
+	
+	var offers_count = new Keen.Query("count", {
+		eventCollection: "smartshop_events",
+		groupBy: "offer.brand.category",
+		filters: keenFilter
+	});
+	client.run(offers_count, function(err, res){
+      	deferred.resolve(res.result);
+    });
+    return deferred.promise();
+}
+
+//------------- Offer shown by brand chart --------
+function showOfferShownByBrandChart() {
+ 	var deferred1 = $.Deferred();
+ 	var deferred2 = $.Deferred();
+ 	var data = [];
+ 	
+ 	getOfferShownByBrand(deferred1);
+	getOfferPublishedByBrand(deferred2);
+	
+	$.when(deferred1, deferred2).done(function(offersShownByBrand, offersPublishedByBrand){
+		var length = offersPublishedByBrand.length;
+		for (var i = 0; i < length; i++) {
+			var entry = offersPublishedByBrand[i];
+			var name = entry['offer.brand.name'];
+			var offersPublished = entry['result'];
+			var offersShown = getOffersShownByName(name, offersShownByBrand);
+			data.push({
+				name: name,
+				impacto: offersShown / offersPublished
+			});
+		}
+		var chart = new Keen.Dataviz()
+    				.el(document.getElementById('offersShownByBrandChart'))
+    				.parseRawData({ result: data })
+    				.chartType("barchart")
+    				.colors(null)
+					.chartOptions( {
+						is3D: true,
+						legend: 'none',
+						hAxis: {
+							title: 'Impacto = ofertas vistas / ofertas publicadas'
+						}	
+					})
+    				.render();
+	});
+}
+
+function getOffersShownByName(name, list) {
+	var length = list.length;
+	for (var i = 0; i < length; i++) {
+		var entry = list[i];
+		var entryName = entry['offer.brand.name'];
+		if (entryName == name) {
+			return entry['result'];
+		}
+	}
+	return 0;
+}
+
+function getOfferPublishedByBrand(deferred) {
+	var keenFilter = [];
+	keenFilter.push({
+		property_name: "type",
+		operator: "eq",
+		property_value: "OFFERPUBLISHED"
+	});
+	keenFilter.push({
+		property_name: "offer.brand.name",
+		operator: "exists",
+		property_value: true
 	});
 	
 	var offers_count = new Keen.Query("count", {
@@ -201,18 +351,34 @@ function showOfferShownByBrandChart() {
 		groupBy: "offer.brand.name",
 		filters: keenFilter
 	});
+	client.run(offers_count, function(err, res){
+    	deferred.resolve(res.result);
+    });
+    return deferred.promise();
+}
+
+function getOfferShownByBrand(deferred) {
+	var keenFilter = [];
+	keenFilter.push({
+		property_name: "type",
+		operator: "eq",
+		property_value: "OFFERSHOWN"
+	});
+	keenFilter.push({
+		property_name: "offer.brand.name",
+		operator: "exists",
+		property_value: true
+	});
 	
-	client.draw(offers_count, document.getElementById("offersShownByBrandChart"), {
-		chartType: "barchart",
-		titlePosition: 'none',
-		height: "auto",
-		width: "auto",
-		colors: null,
-		chartOptions: {
-			is3D: true,
-			legend: 'none'
-		}
-	});	
+	var offers_count = new Keen.Query("count", {
+		eventCollection: "smartshop_events",
+		groupBy: "offer.brand.name",
+		filters: keenFilter
+	});
+	client.run(offers_count, function(err, res){
+      	deferred.resolve(res.result);
+    });
+    return deferred.promise();
 }
 
 //------------- Client age chart ------------------
@@ -286,7 +452,7 @@ function showDailyActivityChart() {
 		interval: "daily",
 		timeframe: {
 			start: "2014-09-01T00:00:00.000Z",
-			end: "2014-10-01T00:00:00.000Z"
+			end: "2014-11-01T00:00:00.000Z"
 		},
 		filters: keenFilter
 	});
@@ -378,8 +544,10 @@ function showActivityMarkersInMap(map) {
     });
     
     client.run(activity_events, function(err, res){
-      Keen.utils.each(res.result, function(coord, index){        
-       	heat.addLatLng(new L.LatLng(coord[1], coord[0]));
+      Keen.utils.each(res.result, function(coord, index){ 
+      	if (coord != null) {
+      		heat.addLatLng(new L.LatLng(coord[1], coord[0]));	
+      	}       
       });
     });
 }
