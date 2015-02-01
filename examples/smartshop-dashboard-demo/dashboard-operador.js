@@ -102,17 +102,13 @@ function showOfferViewsPadtMonthRatioChart() {
 	var deferred2 = new $.Deferred();
 	
 	
-	$.when(deferred1, deferred2).done(function (offersPublished, offersView) {
-		var chart = new Keen.Dataviz()
-    		.el(document.getElementById('offerViewsPastMonthRatioChart'))
-    		.parseRawData({ result: (offersView/offersPublished) * 100 })
-    		.chartType("metric")
-    		.chartOptions({
-    			suffix: '%'
-    		})
-    		.colors(["#49c5b1"])
-    		.title(offersView + " ofertas vistas / " + offersPublished + " ofertas publicadas")
-    		.render();
+	$.when(deferred1, deferred2).done(function (offersPublished, offersView) {		    		
+		var chartContainer = $('#offerViewsPastMonthRatioChart');
+		chartContainer.html(''+
+			'<span class=\'keen-metric-title\'>' +
+				'<b>' + offersView + '</b> ofertas vistas / <b>' + offersPublished + '</b> ofertas publicadas' +
+			'</span>' 
+		);
 	});
 	
 	getOffersPublished(brandID, deferred1);
@@ -240,17 +236,13 @@ function showOfferViewsRatioChart() {
 	var deferred2 = new $.Deferred();
 	
 	
-	$.when(deferred1, deferred2).done(function (offersPublished, offersView) {
-		var chart = new Keen.Dataviz()
-    		.el(document.getElementById('offerViewsRatioChart'))
-    		.parseRawData({ result: (offersView/offersPublished) * 100  })
-    		.chartType("metric")
-    		.chartOptions({
-    			suffix: '%'
-    		})
-    		.colors(["#49c5b1"])
-    		.title(offersView + " ofertas vistas / " + offersPublished + " ofertas publicadas")
-    		.render();
+	$.when(deferred1, deferred2).done(function (offersPublished, offersView) {		
+    		var chartContainer = $('#offerViewsRatioChart');
+    		chartContainer.html(''+
+    			'<span class=\'keen-metric-title\'>' +
+    				'<b>' + offersView + '</b> ofertas vistas / <b>' + offersPublished + '</b> ofertas publicadas' +
+    			'</span>' 
+    		);
 	});
 	
 	getOffersPublished(brandID, deferred1);
