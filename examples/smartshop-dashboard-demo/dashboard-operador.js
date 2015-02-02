@@ -9,9 +9,67 @@ Keen.ready(function(){
    showOfferViewsPadtMonthRatioChart();
    showOffersViewByCategoryChart();
    showSearchesByQueryChart();
+   showClientGenderChart();
+   showClientAgeChart();
 });
 
 var brandID = 14;
+
+//------------- Client age chart ------------------
+function showClientAgeChart() {
+	var keenFilter = [];
+	keenFilter.push({
+		property_name: "client.ageRange",
+		operator: "exists",
+		property_value: true
+	});
+	
+	var gender_count = new Keen.Query("count_unique", {
+		eventCollection: "smartshop_events",
+		targetProperty: "client.id",
+		groupBy: "client.ageRange",
+		filters: keenFilter
+	});	
+	
+	client.draw(gender_count, document.getElementById("clientAgeChart"), {
+		chartType: "piechart",
+		titlePosition: 'none',
+		height: "auto",
+		width: "auto",
+		colors: null,
+		chartOptions: {
+			is3D: true
+		}
+	});	
+}
+
+//------------- Client gender chart ---------------
+function showClientGenderChart() {
+	var keenFilter = [];
+	keenFilter.push({
+		property_name: "client.gender",
+		operator: "exists",
+		property_value: true
+	});
+	
+	var gender_count = new Keen.Query("count_unique", {
+		eventCollection: "smartshop_events",
+		targetProperty: "client.id",
+		groupBy: "client.gender",
+		filters: keenFilter
+	});	
+	
+	client.draw(gender_count, document.getElementById("clientGenderChart"), {
+		chartType: "piechart",
+		titlePosition: 'none',
+		height: "auto",
+		width: "auto",
+		colors: null,
+		chartOptions: {
+			is3D: true
+		}
+	});
+}
 
 //------------- Searches by query chart --------
 function showSearchesByQueryChart() {
